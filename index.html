@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Página de Compra</title>
+    <style>
+        body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100%;
+            background: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+        }
+
+        #purchaseBtn {
+            background: #0073aa;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #purchaseBtn:disabled {
+            background: #25D366;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+        !function(f,b,e,v,n,t,s){
+            if(f.fbq) return;
+            n=f.fbq=function(){n.callMethod ? n.callMethod.apply(n,arguments) : n.queue.push(arguments)};
+            if(!f._fbq) f._fbq=n;
+            n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[];
+            t=b.createElement(e); t.async=!0;
+            t.src=v;
+            s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s);
+        }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+        fbq('init', '1402106630879240'); // Pixel atualizado
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none" 
+             src="https://www.facebook.com/tr?id=1402106630879240&ev=PageView&noscript=1"/>
+    </noscript>
+    <!-- End Meta Pixel Code -->
+</head>
+<body>
+    <div class="btn-container">
+        <button id="purchaseBtn">CLIQUE AQUI</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('purchaseBtn');
+            const LINK_WHATSAPP = "https://wa.me/5512996053977?text=Ol%C3%A1%2C%20j%C3%A1%20paguei%20a%20chamada%20de%205%20minutos!";
+            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+
+            const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+            const utmData = {};
+            utmParams.forEach(param => {
+                let val = sessionStorage.getItem(param) || localStorage.getItem(param);
+                if (val) utmData[param] = val;
+            });
+
+            const ultimoClique = localStorage.getItem('ultimoClique');
+
+            function verificarBloqueio() {
+                if (!ultimoClique) return;
+
+                const agora = Date.now();
+                const decorrido = agora - parseInt(ultimoClique);
+
+                if (decorrido < vinteQuatroHoras) {
+                    btn.disabled = true;
+                    btn.textContent = 'Volte ao WhatsApp';
+                    iniciarVerificacao();
+                } else {
+                    localStorage.removeItem('ultimoClique');
+                }
+            }
+
+            function iniciarVerificacao() {
+                const intervalo = setInterval(() => {
+                    const novoClique = localStorage.getItem('ultimoClique');
+                    if (!novoClique) {
+                        clearInterval(intervalo);
+                        return;
+                    }
+
+                    const restante = vinteQuatroHoras - (Date.now() - parseInt(novoClique));
+                    if (restante <= 0) {
+                        clearInterval(intervalo);
+                        btn.disabled = false;
+                        btn.textContent = 'Comprar Agora';
+                        localStorage.removeItem('ultimoClique');
+                    }
+                }, 1000);
+            }
+
+            verificarBloqueio();
+
+            btn.addEventListener('click', function() {
+                localStorage.setItem('ultimoClique', Date.now());
+                btn.disabled = true;
+                btn.textContent = 'Volte ao WhatsApp';
+
+                const eventId = 'purchase_' + Date.now();
+
+                if (typeof fbq !== 'undefined') {
+                    fbq('track', 'Purchase', {
+                        value: 40.00,
+                        currency: 'BRL',
+                        content_ids: ['produto1'],
+                        content_type: 'product',
+                        ...utmData
+                    }, {
+                        eventID: eventId
+                    }, function() {
+                        window.location.href = LINK_WHATSAPP;
+                    });
+                } else {
+                    window.location.href = LINK_WHATSAPP;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
