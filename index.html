@@ -51,14 +51,13 @@
             s.parentNode.insertBefore(t,s);
         }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-        fbq('init', '1402106630879240'); // Pixel atualizado
+        fbq('init', '1402106630879240');
         fbq('track', 'PageView');
     </script>
     <noscript>
         <img height="1" width="1" style="display:none" 
              src="https://www.facebook.com/tr?id=1402106630879240&ev=PageView&noscript=1"/>
     </noscript>
-    <!-- End Meta Pixel Code -->
 </head>
 <body>
     <div class="btn-container">
@@ -68,7 +67,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const btn = document.getElementById('purchaseBtn');
-            const LINK_WHATSAPP = "https://wa.me/5512996053977?text=Ol%C3%A1%2C%20j%C3%A1%20paguei%20a%20chamada%20de%205%20minutos!";
+            const LINK_WHATSAPP = "https://wa.me/5562998000723?text=Oi%2C%20comprei%20pacote%20completo!";
             const vinteQuatroHoras = 24 * 60 * 60 * 1000;
 
             const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
@@ -118,7 +117,9 @@
             btn.addEventListener('click', function() {
                 localStorage.setItem('ultimoClique', Date.now());
                 btn.disabled = true;
-                btn.textContent = 'Volte ao WhatsApp';
+
+                let contador = 3;
+                btn.textContent = `Redirecionando em ${contador}...`;
 
                 const eventId = 'purchase_' + Date.now();
 
@@ -131,12 +132,18 @@
                         ...utmData
                     }, {
                         eventID: eventId
-                    }, function() {
-                        window.location.href = LINK_WHATSAPP;
                     });
-                } else {
-                    window.location.href = LINK_WHATSAPP;
                 }
+
+                const intervalo = setInterval(() => {
+                    contador--;
+                    if (contador > 0) {
+                        btn.textContent = `Redirecionando em ${contador}...`;
+                    } else {
+                        clearInterval(intervalo);
+                        window.location.href = LINK_WHATSAPP;
+                    }
+                }, 1000);
             });
         });
     </script>
